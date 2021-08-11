@@ -13,13 +13,26 @@ class UsersController < ApplicationController
   end
 
   def create
-    
     @user = User.new(user_params)
     if @user.save
-      render json: {message: "réussi"}
+      user = User.find_by("email = ?", user_params[:email])
+      render json: { token: 'Bearer ' + token(user.id, user.name, user.email)}, status: :created 
     else
       render json: {message: "echec"}
     end
+  end
+
+  def update
+    @user = User.find(params[:id])
+    if @user.update(user_params)
+      render json: {message: "modification réussi !"}
+    else
+      render json: {message: "modification échouer !"}
+    end
+  end
+
+  def destroy
+    User.find(params[:id]).destroy
   end
 
     private

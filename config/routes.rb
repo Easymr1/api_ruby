@@ -1,6 +1,6 @@
 Rails.application.routes.draw do
   get '/', to: 'application#hello'
-  resources :users, only: [:index, :show, :create]
+  resources :users, only: [:index, :show, :create, :update, :destroy]
   resources :sessions, only: [:create]
   
 end
