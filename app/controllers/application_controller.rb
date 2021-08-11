@@ -13,6 +13,10 @@ class ApplicationController < ActionController::API
     def client_has_valid_token?
       !!current_user_id
     end
+
+    def id_for_publication
+      current_user_id
+    end
   
     def current_user_id
       begin
