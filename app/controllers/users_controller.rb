@@ -4,13 +4,17 @@ class UsersController < ApplicationController
   def index
     if client_has_valid_token?
       render json: User.all
+    else
+      require_login
     end
   end
 
   def show
     if client_has_valid_token?
     render json: User.find(params[:id])
-    end
+  else
+    require_login
+  end
   end
 
   def create
@@ -31,15 +35,18 @@ class UsersController < ApplicationController
     else
       render json: {message: "modification échouer !"}
     end
-    end
+  else
+    require_login
+  end
     
   end
 
   def destroy
     if client_has_valid_token?
       User.find(params[:id]).destroy
+    else
+      require_login
     end
-    
   end
 
     private
