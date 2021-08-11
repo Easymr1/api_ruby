@@ -1,15 +1,16 @@
 class UsersController < ApplicationController
-
+  
+  
   def index
-    render json: User.all
+    if client_has_valid_token?
+      render json: User.all
+    end
   end
-  
+
   def show
+    if client_has_valid_token?
     render json: User.find(params[:id])
-  end
-  
-  def new
-    @user = User.new
+    end
   end
 
   def create
@@ -23,16 +24,22 @@ class UsersController < ApplicationController
   end
 
   def update
-    @user = User.find(params[:id])
+    if client_has_valid_token?
+      @user = User.find(params[:id])
     if @user.update(user_params)
       render json: {message: "modification réussi !"}
     else
       render json: {message: "modification échouer !"}
     end
+    end
+    
   end
 
   def destroy
-    User.find(params[:id]).destroy
+    if client_has_valid_token?
+      User.find(params[:id]).destroy
+    end
+    
   end
 
     private
