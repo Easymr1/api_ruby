@@ -21,29 +21,38 @@ class UsersController < ApplicationController
     @user = User.new(user_params)
     if @user.save
       user = User.find_by("email = ?", user_params[:email])
-      render json: { token: 'Bearer ' + token(user.id, user.name, user.email)}, status: :created 
+      render json: { token: 'Bearer ' + token(user.id, user.name, user.email, user.admin)}, status: :created 
     else
       render json: {message: "echec"}
     end
   end
 
   def update
-    if client_has_valid_token?
+    if client_has_valid_token? 
       @user = User.find(params[:id])
-    if @user.update(user_params)
-      render json: {message: "modification réussi !"}
+      if @user.id === user_id_token || is_admin
+        if @user.update(user_params)
+          render json: {message: "modification réussi !"}
+        else
+          render json: {message: "modification échouer !"}
+        end
+      else
+        render json: {message: "Il ne s'agit pas de votre compte"}
+      end
     else
-      render json: {message: "modification échouer !"}
+      require_login
     end
-  else
-    require_login
-  end
-    
   end
 
   def destroy
     if client_has_valid_token?
-      User.find(params[:id]).destroy
+      @user = User.find(params[:id])
+      if @user.id === user_id_token || is_admin
+        @user.destroy
+        render json: {message: "Utlisisateur supprimer", :user => !!@user.destroy}
+      else
+        render json: {message: "Il ne s'agit pas de votre compte"}
+      end
     else
       require_login
     end

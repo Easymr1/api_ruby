@@ -1,8 +1,8 @@
 class ApplicationController < ActionController::API
     private
-    def token(user_id, user_name, user_email)
+    def token(user_id, user_name, user_email, user_admin)
       exp = Time.now.to_i + 4 * 3600
-      payload = { user_id: user_id, user_name: user_name, user_email: user_email}
+      payload = { user_id: user_id, user_name: user_name, user_email: user_email, user_admin: user_admin}
       JWT.encode(payload, hmac_secret, 'HS256')
     end
   
@@ -11,14 +11,18 @@ class ApplicationController < ActionController::API
     end
   
     def client_has_valid_token?
-      !!current_user_id
+      !!current_user["user_id"]
     end
 
-    def id_for_publication
-      current_user_id
+    def user_id_token
+      current_user["user_id"]
+    end
+
+    def is_admin
+      current_user["user_admin"]
     end
   
-    def current_user_id
+    def current_user
       begin
         token = request.headers["Authorization"].split(' ')[1]
         decoded_array = JWT.decode(token, hmac_secret, true, { algorithm: 'HS256' })
@@ -26,7 +30,7 @@ class ApplicationController < ActionController::API
       rescue #JWT::VerificationError
         return nil
       end
-      payload["user_id"]
+      payload
     end
   
     def require_login
