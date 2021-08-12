@@ -1,23 +1,35 @@
 class MicropostsController < ApplicationController
 
     def index
-        render json: Micropost.all
+        if client_has_valid_token?
+            render json: Micropost.all
+        else
+            require_login
+        end
     end
 
     def show
-        @user = User.find(params[:id])
-        @microposts = @user.microposts
-        render json: @microposts
+        if client_has_valid_token?
+            @user = User.find(params[:id])
+            @microposts = @user.microposts
+            render json: { :user => @user, :micropost => @microposts}
+        else
+            require_login
+        end
     end
 
     def create
-        @user = User.find(id_for_publication)
-        @micropost = @user.microposts.build(micropost_params)
-        if @micropost.save
-            render json: {message: "Post crée avec succes"}  
+        if client_has_valid_token?
+            @user = User.find(id_for_publication)
+            @micropost = @user.microposts.build(micropost_params)
+            if @micropost.save
+                render json: {message: "Post crée avec succes"}  
+            else
+                render json: {message: "Post non crée"}  
+            end
         else
-            render json: {message: "Post non crée"}  
-        end 
+            require_login
+        end
     end
 
     def update
