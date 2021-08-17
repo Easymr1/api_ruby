@@ -29,9 +29,9 @@ class UsersController < ApplicationController
 
   def update
     if client_has_valid_token? 
-      @user = User.find(params[:id])
+      @user = User.find_by(id: params[:id])
       if @user.id === user_id_token || is_admin
-        if @user.update(user_params)
+        if @user.update(user_update)
           render json: {message: "modification réussi !"}
         else
           render json: {message: "modification échouer !"}
@@ -62,5 +62,9 @@ class UsersController < ApplicationController
 
     def user_params
       params.require(:user).permit(:name, :email, :password, :password_confirmation)
+    end
+
+    def user_update
+      params.require(:user).permit(:name, :email)
     end
 end

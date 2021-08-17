@@ -2,7 +2,10 @@ class MicropostsController < ApplicationController
 
     def index
         if client_has_valid_token?
-            render json: Micropost.all
+            @Micropost = Micropost.select('microposts.*, users.name').joins(:user)
+            render json: @Micropost
+            
+
         else
             require_login
         end
@@ -10,9 +13,8 @@ class MicropostsController < ApplicationController
 
     def show
         if client_has_valid_token?
-            @user = User.find(params[:id])
-            @microposts = @user.microposts
-            render json: { :user => @user, :micropost => @microposts}
+            @microposts = Micropost.find(params[:id])
+            render json: @microposts
         else
             require_login
         end
